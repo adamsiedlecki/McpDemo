@@ -9,6 +9,7 @@ import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
@@ -31,25 +32,12 @@ public class LeaveMcpTools {
     public List<Employee> employees() {
         log.info("Invoked employees");
         try {
-            String content = resourceLoader
-                    .getResource("classpath:urlopy test.csv")
-                    .getContentAsString(StandardCharsets.UTF_8);
-
-            return content.lines()
-                    .skip(1) // pomijamy nagłówek
-                    .map(line -> line.split(";"))
-                    .map(parts -> new Employee(
-                            parts[0],
-                            Integer.parseInt(parts[1]),
-                            Integer.parseInt(parts[2])
-                    ))
-                    .toList();
+            return loadEmployeesFromFile();
         } catch (Exception e) {
             log.error("Error during fetching employees");
             throw new RuntimeException(e);
         }
     }
-
 
     @Tool(
             name = "employeesWithoutLeave",
@@ -70,32 +58,32 @@ public class LeaveMcpTools {
 
 
     @Tool(
-            name = "employeeLeaveStatus",
+            name = "employeeLeaveTerms",
             description = """
-                    Sprawdza stan urlopu wypoczynkowego konkretnego pracownika po jego name.
-
-                    DZIAŁANIE:
-                    1. Wyszukuje pracownika po nazwie (niezależnie od wielkości liter)
-                    2. Sprawdza czy ma pozostałe dni urlopu
-                    3. Zwraca czytelny status
-
-                    WYMAGANE DANE WEJŚCIOWE:
-                    - name: dokładna nazwa pracownika do wyszukania (np. "Jan Kowalski", albo "Marta")
-                    - employees: lista obiektów Employee z polami:
-                      * employeeName (string): imię i nazwisko
-                      * remainingLeaveDays (int): pozostałe dni urlopu
-                      * hasLeaveLeft (boolean): czy ma jeszcze urlop
-
-                    PRZYKŁAD WYWOŁANIA:
-                    Wejście: name="Anna Nowak", employees=[lista pracowników]
-                    Wyjście: "Anna Nowak ma jeszcze 5 dni urlopu." LUB "Anna Nowak nie ma już urlopu."
-
-                    UWAGA: Jeśli pracownik nie zostanie znaleziony, zwraca komunikat "Nie znaleziono pracownika"
+                    Zwraca tekst zasad, na jakich pracownikom przyszługują urlopy.
                     """
     )
-    public String employeeLeaveStatus(@ToolParam(description = "nazwa pracownika")String employeeName,
-                                      @ToolParam(description = "lista pracowników") List<Employee> employees) {
-        log.info("Invoked employeeLeaveStatus");
-        return leaveService.leaveStatus(employees, employeeName);
+    public String employeeLeaveTerms() {
+        log.info("Invoked employeeLeaveTerms");
+        return """
+                Pracownikom przysługuje urlop wypoczynkowy. Wynosi on 26 dni w roku,
+                gdy ktoś przepracował 10 lat lub więcej, oraz 20 dni w roku, jeśli ktoś przepracował krócej niż 10 lat.
+               """;
+    }
+
+    private List<Employee> loadEmployeesFromFile() throws IOException {
+        String content = resourceLoader
+                .getResource("classpath:urlopy test.csv")
+                .getContentAsString(StandardCharsets.UTF_8);
+
+        return content.lines()
+                .skip(1) // pomijamy nagłówek
+                .map(line -> line.split(";"))
+                .map(parts -> new Employee(
+                        parts[0],
+                        Integer.parseInt(parts[1]),
+                        Integer.parseInt(parts[2])
+                ))
+                .toList();
     }
 }
