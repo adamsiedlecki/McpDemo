@@ -9,7 +9,7 @@ public record Employee(String employeeName, int yearsOfService, int usedLeaveDay
         return totalLeaveDays() - usedLeaveDays;
     }
 
-    public boolean hasLeaveLeft() {
+    public boolean isLeaveLeft() {
         return remainingLeaveDays() > 0;
     }
 }

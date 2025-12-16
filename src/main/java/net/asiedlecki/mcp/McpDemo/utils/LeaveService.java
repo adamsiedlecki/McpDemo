@@ -11,7 +11,7 @@ public class LeaveService {
 
     public List<Employee> employeesWithoutLeave(List<Employee> employees) {
         return employees.stream()
-                .filter(e -> !e.hasLeaveLeft())
+                .filter(e -> !e.isLeaveLeft())
                 .toList();
     }
 
@@ -20,7 +20,7 @@ public class LeaveService {
         return employees.stream()
                 .filter(e -> e.employeeName().equalsIgnoreCase(name))
                 .findFirst()
-                .map(e -> e.hasLeaveLeft()
+                .map(e -> e.isLeaveLeft()
                         ? e.employeeName() + " ma jeszcze " + e.remainingLeaveDays() + " dni urlopu."
                         : e.employeeName() + " nie ma już urlopu."
                 )
