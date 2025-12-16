@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.asiedlecki.mcp.McpDemo.model.Employee;
 import net.asiedlecki.mcp.McpDemo.utils.LeaveService;
 import org.springframework.ai.tool.annotation.Tool;
+import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -29,7 +30,8 @@ public class LeaveMcpTools {
                             Użyj tego narzędzia, gdy pytają o 'kto nie ma już urlopu', 'komu skończył się urlop'.
                     """
     )
-    public List<String> employeesWithoutLeave(List<Employee> employees) {
+    public List<String> employeesWithoutLeave(
+            @ToolParam(description = "lista pracowników") List<Employee> employees) {
         log.info("Invoked employeesWithoutLeave");
         return leaveService.employeesWithoutLeave(employees)
                 .stream()
@@ -62,8 +64,9 @@ public class LeaveMcpTools {
                     UWAGA: Jeśli pracownik nie zostanie znaleziony, zwraca komunikat "Nie znaleziono pracownika"
                     """
     )
-    public String employeeLeaveStatus(String name, List<Employee> employees) {
+    public String employeeLeaveStatus(@ToolParam(description = "nazwa pracownika")String employeeName,
+                                      @ToolParam(description = "lista pracowników") List<Employee> employees) {
         log.info("Invoked employeeLeaveStatus");
-        return leaveService.leaveStatus(employees, name);
+        return leaveService.leaveStatus(employees, employeeName);
     }
 }
