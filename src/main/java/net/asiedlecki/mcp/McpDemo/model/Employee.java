@@ -1,15 +1,15 @@
 package net.asiedlecki.mcp.McpDemo.model;
 
 public record Employee(String employeeName, int yearsOfService, int usedLeaveDays) {
-    public int totalLeaveDays() {
+    public int getTotalLeaveDays() {
         return yearsOfService < 10 ? 20 : 26;
     }
 
-    public int remainingLeaveDays() {
-        return totalLeaveDays() - usedLeaveDays;
+    public int getRemainingLeaveDays() {
+        return getTotalLeaveDays() - usedLeaveDays;
     }
 
     public boolean isLeaveLeft() {
-        return remainingLeaveDays() > 0;
+        return getRemainingLeaveDays() > 0;
     }
 }

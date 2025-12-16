@@ -21,7 +21,7 @@ public class LeaveService {
                 .filter(e -> e.employeeName().equalsIgnoreCase(name))
                 .findFirst()
                 .map(e -> e.isLeaveLeft()
-                        ? e.employeeName() + " ma jeszcze " + e.remainingLeaveDays() + " dni urlopu."
+                        ? e.employeeName() + " ma jeszcze " + e.getRemainingLeaveDays() + " dni urlopu."
                         : e.employeeName() + " nie ma już urlopu."
                 )
                 .orElse("Nie znaleziono pracownika");
