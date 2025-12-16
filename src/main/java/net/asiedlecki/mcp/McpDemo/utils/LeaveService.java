@@ -18,11 +18,11 @@ public class LeaveService {
 
     public String leaveStatus(List<Employee> employees, String name) {
         return employees.stream()
-                .filter(e -> e.name().equalsIgnoreCase(name))
+                .filter(e -> e.employeeName().equalsIgnoreCase(name))
                 .findFirst()
                 .map(e -> e.hasLeaveLeft()
-                        ? e.name() + " ma jeszcze " + e.remainingLeaveDays() + " dni urlopu."
-                        : e.name() + " nie ma już urlopu."
+                        ? e.employeeName() + " ma jeszcze " + e.remainingLeaveDays() + " dni urlopu."
+                        : e.employeeName() + " nie ma już urlopu."
                 )
                 .orElse("Nie znaleziono pracownika");
     }
