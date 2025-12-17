@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.reader.tika.TikaDocumentReader;
+import org.springframework.ai.transformer.splitter.TextSplitter;
+import org.springframework.ai.transformer.splitter.TokenTextSplitter;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
@@ -30,13 +32,17 @@ public class PdfIngestor {
 
         List<Document> documents = reader.get();
 
-        documents.forEach(doc -> {
+        TextSplitter splitter = new TokenTextSplitter();
+
+        List<Document> chunks = splitter.split(documents);
+
+        chunks.forEach(doc -> {
             doc.getMetadata().put("source", "gus_jasieniec.pdf");
             doc.getMetadata().put("type", "statystyka_gminy");
         });
 
-        vectorStore.add(documents);
+        vectorStore.add(chunks);
 
-        log.info("Załadowano {} documents z PDF", documents.size());
+        log.info("Załadowano {} chunks z PDF", chunks.size());
     }
 }
