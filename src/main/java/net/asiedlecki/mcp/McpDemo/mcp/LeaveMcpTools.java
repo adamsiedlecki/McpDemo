@@ -7,11 +7,15 @@ import net.asiedlecki.mcp.McpDemo.utils.LeaveService;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Component
 @Slf4j
@@ -69,6 +73,22 @@ public class LeaveMcpTools {
                 Pracownikom przysługuje urlop wypoczynkowy. Wynosi on 26 dni w roku,
                 gdy ktoś przepracował 10 lat lub więcej, oraz 20 dni w roku, jeśli ktoś przepracował krócej niż 10 lat.
                """;
+    }
+
+    @Tool(name = "getCurrentUser", description = """
+            Pobiera informacje na temat aktualnie zalogowanego użytkownika, między innymi nazwę (name)
+            """)
+    public Map<String, Object> getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        Map<String, Object> userInfo = new HashMap<>();
+        userInfo.put("name", authentication.getName());
+        userInfo.put("authenticated", authentication.isAuthenticated());
+        userInfo.put("authorities", authentication.getAuthorities().stream()
+                .map(Object::toString)
+                .toList());
+
+        return userInfo;
     }
 
     private List<Employee> loadEmployeesFromFile() throws IOException {
