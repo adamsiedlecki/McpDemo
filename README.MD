@@ -19,7 +19,7 @@ ollama pull mxbai-embed-large
 ```
 - skonfigurować application.properties projektu mcp-test
 ```properties
-# potrzebne do EmbeddingModel (odczytywanie pdf)
+# potrzebne do EmbeddingModel (odczytywanie pdf) - tutaj należy wpisać adres ollamy
 spring.ai.ollama.base-url=http://10.0.0.22:11434
 ```
 
