@@ -48,7 +48,7 @@ Started McpDemoApplication in 18.891 seconds (process running for 19.218)
 
 Aby zweryfikować działanie MCP, można wykonać poniższe zapytania:
 
-#### POST <adres>:<port>/mcp
+#### POST adres:port/mcp
 
 Body:
 ```json
@@ -100,7 +100,7 @@ Powinien zwrócić coś w stylu:
 }
 ```
 
-#### POST <adres>:<port>/mcp
+#### POST adres:port/mcp
 
 ```json
 {
