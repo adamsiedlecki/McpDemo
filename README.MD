@@ -1,6 +1,54 @@
 ## Serwer MCP
 
-### POST 10.0.0.5:8080/mcp
+### Co to jest MCP?
+
+Serwer MCP (Model Context Protocol) służy do zapewnienia modelowi kontekstu do działania, czyli narzędzia (Tools) oraz wiedzy.
+
+Serwer MCP można podpiąć do chatów, co poprawia ich działanie.
+
+Na obrazku widać panel do komunikacji z modelem LLM, w którym model skorzystał z serwera MCP i znajdującego się na nim vectorStore,
+do którego uprzednio załadowano pdf.
+![panel do komunikacji z modelem LLM](img/odpowiedz-modelu-korzystajacego-z-vectorStore-w-mcp.png)
+
+### Uruchomienie projektu mcp-test
+
+Aby uruchomić projekt potrzeba:
+- uruchomić serwer ollama i pobrać modele LLM, np. mxbai-embed-large - ten jest potrzebny do odczytania plików pdf.
+```bash
+ollama pull mxbai-embed-large
+```
+- skonfigurować application.properties projektu mcp-test
+```properties
+# potrzebne do EmbeddingModel (odczytywanie pdf)
+spring.ai.ollama.base-url=http://10.0.0.22:11434
+```
+
+- zbudować projekt mcp-test
+```bash
+mvn clean install
+```
+Po zbudowaniu, w katalogu target powinien się znajować plik .jar. 
+
+- uruchomienie może odbyć się za pomocą docker compose i na tą okoliczność zostały przygotowane
+przykładowe pliki w katalogu config projektu.
+Plik .jar należy umieścić w katalogu mcp-test obok Dockerfile.
+Uruchomienie odbywa się standardowo za pomocą poniższej komendy:
+```bash
+docker compose up -d
+```
+
+Podczas uruchamiania, w logach powinny pojawić takie lub podobne informacje:
+```logs
+Rozpoczynam ingest PDF gus_jasieniec.pdf
+Registered tools: 4
+Started McpDemoApplication in 18.891 seconds (process running for 19.218)
+```
+
+### Weryfikacja działania
+
+Aby zweryfikować działanie MCP, można wykonać poniższe zapytania:
+
+#### POST 10.0.0.5:8080/mcp
 
 Body:
 ```json
@@ -24,7 +72,7 @@ Body:
 }
 ```
 
-Zwraca:
+Powinien zwrócić coś w stylu:
 ```json
 {
     "jsonrpc": "2.0",
@@ -52,7 +100,7 @@ Zwraca:
 }
 ```
 
-### 10.0.0.5:8080/mcp
+#### 10.0.0.5:8080/mcp
 
 ```json
 {
@@ -62,7 +110,7 @@ Zwraca:
 }
 ```
 
-Zwraca
+Powinien zwrócić coś w stylu:
 
 ```json
 {
