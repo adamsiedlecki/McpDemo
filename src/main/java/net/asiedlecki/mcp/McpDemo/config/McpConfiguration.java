@@ -1,5 +1,6 @@
 package net.asiedlecki.mcp.McpDemo.config;
 
+import net.asiedlecki.mcp.McpDemo.mcp.GusJasieniecTools;
 import net.asiedlecki.mcp.McpDemo.mcp.LeaveMcpTools;
 import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.ai.tool.ToolCallbackProvider;
@@ -13,10 +14,11 @@ import org.springframework.context.annotation.Configuration;
 public class McpConfiguration {
 
     @Bean
-    ToolCallbackProvider toolCallbackProvider(LeaveMcpTools leaveMcpTools) {
+    ToolCallbackProvider toolCallbackProvider(LeaveMcpTools leaveMcpTools,
+                                              GusJasieniecTools gusJasieniecTools) {
         return MethodToolCallbackProvider
                 .builder()
-                .toolObjects(leaveMcpTools)
+                .toolObjects(leaveMcpTools, gusJasieniecTools)
                 .build();
     }
 
