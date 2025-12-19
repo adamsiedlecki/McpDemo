@@ -3,17 +3,19 @@ package net.asiedlecki.mcp.McpDemo.mcp;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.asiedlecki.mcp.McpDemo.model.Employee;
+import net.asiedlecki.mcp.McpDemo.security.model.UserInfo;
+import net.asiedlecki.mcp.McpDemo.security.services.UserInfoClient;
 import net.asiedlecki.mcp.McpDemo.utils.LeaveService;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,6 +27,7 @@ public class LeaveMcpTools {
 
     private final LeaveService leaveService;
     private final ResourceLoader resourceLoader;
+    private final UserInfoClient userInfoClient;
 
     @Tool(
             name = "employees",
@@ -79,16 +82,21 @@ public class LeaveMcpTools {
             Pobiera informacje na temat aktualnie zalogowanego użytkownika, między innymi nazwę (name)
             """)
     public Map<String, Object> getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            JwtAuthenticationToken jwtAuth = (JwtAuthenticationToken) auth;
+            String sub = jwtAuth.getToken().getSubject();
+            String accessToken = jwtAuth.getToken().getTokenValue();
 
-        Map<String, Object> userInfo = new HashMap<>();
-        userInfo.put("name", authentication.getName());
-        userInfo.put("authenticated", authentication.isAuthenticated());
-        userInfo.put("authorities", authentication.getAuthorities().stream()
-                .map(Object::toString)
-                .toList());
+            UserInfo userInfo = userInfoClient.getUserInfo(sub, accessToken);
 
-        return userInfo;
+            return Map.of("name", userInfo.getSub(),
+                    "surname", userInfo.getFamilyName(),
+                    "email", userInfo.getEmail());
+        } catch (RuntimeException e) {
+            log.error("Error during current user mcp operation", e);
+            return Map.of("message to user", "wystąpił  błąd podczas pobierania informacji: " + e.getMessage());
+        }
     }
 
     private List<Employee> loadEmployeesFromFile() throws IOException {
