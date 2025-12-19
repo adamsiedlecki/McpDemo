@@ -37,7 +37,7 @@ public class McpServerSecurityConfig {
                             // REQUIRED: the authserver's issuer URI
                             mcpAuthorization.authorizationServer(this.authServerUrl);
                             // OPTIONAL: enforce the `aud` claim in the JWT token.
-                            mcpAuthorization.validateAudienceClaim(true);
+                            mcpAuthorization.validateAudienceClaim(false);
                         }
                 )
                 .build();
