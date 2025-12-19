@@ -5,9 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.asiedlecki.mcp.McpDemo.model.Employee;
 import net.asiedlecki.mcp.McpDemo.security.model.UserInfo;
 import net.asiedlecki.mcp.McpDemo.security.services.UserInfoClient;
-import net.asiedlecki.mcp.McpDemo.utils.LeaveService;
 import org.springframework.ai.tool.annotation.Tool;
-import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,51 +16,40 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Component
 @Slf4j
 @RequiredArgsConstructor
 public class LeaveMcpTools {
 
-
-    private final LeaveService leaveService;
     private final ResourceLoader resourceLoader;
     private final UserInfoClient userInfoClient;
 
     @Tool(
-            name = "employees",
+            name = "employeeInfo",
             description = """
-                    Zwraca listę nazw pracowników, wraz informacją o tym ile każdemu z nich zostało urlopu do wykorzystania
+                    Zwraca dane o użytkowniku który jest pracownikiem, wraz informacją o tym ile zostało mu urlopu wypoczynkowego do wykorzystania
                      oraz ile tego urlopu pracownikowi przysługiwało w sumie.
                     """
     )
-    public List<Employee> employees() {
+    public Map<String, Object> employees() {
         log.info("Invoked employees");
         try {
-            return loadEmployeesFromFile();
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            JwtAuthenticationToken jwtAuth = (JwtAuthenticationToken) auth;
+            String sub = jwtAuth.getToken().getSubject();
+            Optional<Employee> employee = loadEmployeesFromFile().stream().filter(e -> e.employeeName().equals(sub)).findFirst();
+            if (employee.isPresent()) {
+                return Map.of("employee data", employee);
+            } else {
+                return Map.of("message", "Nie znaleziono danych użytkownika: " + sub);
+            }
         } catch (Exception e) {
             log.error("Error during fetching employees");
-            throw new RuntimeException(e);
+            return Map.of("message", "Error during fetching employees");
         }
     }
-
-    @Tool(
-            name = "employeesWithoutLeave",
-            description = """
-                    Zwraca listę nazw pracowników, którzy nie mają już dni urlopu wypoczynkowego do wykorzystania.
-                            Wejście: lista obiektów Employee z polami: name (string) i leaveDays (number).
-                            Użyj tego narzędzia, gdy pytają o 'kto nie ma już urlopu', 'komu skończył się urlop'.
-                    """
-    )
-    public List<String> employeesWithoutLeave(
-            @ToolParam(description = "lista pracowników") List<Employee> employees) {
-        log.info("Invoked employeesWithoutLeave");
-        return leaveService.employeesWithoutLeave(employees)
-                .stream()
-                .map(Employee::employeeName)
-                .toList();
-    }
-
 
     @Tool(
             name = "employeeLeaveTerms",
