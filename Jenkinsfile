@@ -60,7 +60,7 @@ pipeline {
         stage('Healthcheck') {
             steps {
                 script {
-                    sleep time: 25, unit: 'SECONDS'
+                    sleep time: 8, unit: 'SECONDS'
                     def response = httpRequest url: 'https://mcp-test.owocny.com/actuator/health', timeout: 5
 
                     if (response.status == 200) {
