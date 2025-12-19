@@ -70,9 +70,9 @@ pipeline {
                         error("healthcheck is not 200")
                     }
 
-                    if (!response.content.contains("/mcp")) {
-                        println("content does not contain /mcp")
-                        error("content does not contain /mcp")
+                    if (!response.content.contains("UP")) {
+                        println("content does not contain UP")
+                        error("content does not contain UP")
                     }
                 }
             }
